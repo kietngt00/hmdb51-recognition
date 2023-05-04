@@ -1,0 +1,7 @@
+seed: 0
+lr: 0.0001 # Change this to your own learning rate
+log_path: logs/ # Change this to your own path
+batch_size: 1 # Change this to your batch size
+epochs: 200
+num_classes: 51
+weight_decay: 0.00001
