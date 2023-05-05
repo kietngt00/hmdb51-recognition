@@ -6,9 +6,8 @@ import glob
 # pytorch_lightning
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
-from pytorch_lightning.loggers import TensorBoardLogger
-from data import DataModule
-from model import ModelInterface
+from data import HMDB51DataModule
+from model.model import ModelInterface
 from utils import *
 
 #--->Setting parameters
@@ -31,7 +30,7 @@ def main(cfg):
     cfg.callbacks = load_callbacks(cfg)
 
     #---->Define Data 
-    dm = DataModule()
+    dm = HMDB51DataModule()
 
     #---->Define Model
     model = ModelInterface()
@@ -52,7 +51,6 @@ def main(cfg):
     trainer.fit(model=model, datamodule=dm)
 
 if __name__ == '__main__':
-
     args = make_parse()
     cfg = read_yaml(args.config)
 

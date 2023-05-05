@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchmetrics
 import pytorch_lightning as pl
-from modules import *
+from model.modules import *
 
 class ModelInterface(pl.LightningModule):
     def __init__(self, args):
