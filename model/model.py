@@ -18,7 +18,7 @@ class ModelInterface(pl.LightningModule):
 
         self.criterion = nn.CrossEntropyLoss()
         self.metrics = torchmetrics.MetricCollection([torchmetrics.Accuracy(task='binary', num_classes=self.args.num_classes,
-                                                                           average = 'micro')])
+                                                                           average='micro')])
     
     def forward(self, x):
         x = self.cnn(x)

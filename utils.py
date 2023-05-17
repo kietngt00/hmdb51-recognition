@@ -39,7 +39,7 @@ def load_callbacks(cfg):
     )
     callbacks.append(early_stop_callback)
 
-    if cfg.General.server == 'train' :
+    if cfg.General.stage == 'train' :
         callbacks.append(ModelCheckpoint(monitor = 'val_acc',
                                          dirpath = str(cfg.log_path),
                                          filename = '{epoch:02d}-{val_acc:.4f}',
