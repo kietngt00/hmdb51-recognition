@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 #---->read yaml
 import yaml
@@ -13,7 +14,7 @@ from pytorch_lightning import loggers as pl_loggers
 
 def load_loggers(cfg):
 
-    log_path = cfg.General.log_path
+    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size)) # example: logs/0.001_32
     Path(log_path).mkdir(exist_ok=True, parents=True)
     
     #---->TensorBoard
@@ -39,13 +40,25 @@ def load_callbacks(cfg):
     )
     callbacks.append(early_stop_callback)
 
-    if cfg.General.stage == 'train' :
-        callbacks.append(ModelCheckpoint(monitor = 'val_acc',
-                                         dirpath = str(cfg.log_path),
-                                         filename = '{epoch:02d}-{val_acc:.4f}',
-                                         verbose = True,
-                                         save_last = True,
-                                         save_top_k = 1,
-                                         mode = 'max',
-                                         save_weights_only = True))
+    callbacks.append(ModelCheckpoint(monitor = 'val_acc',
+                                        dirpath = str(cfg.log_path),
+                                        filename = '{epoch:02d}-{val_acc:.4f}',
+                                        verbose = True,
+                                        save_last = True,
+                                        save_top_k = 1,
+                                        mode = 'max',
+                                        save_weights_only = True))
     return callbacks
+
+def get_label_dict():
+    idxs, labels = [], []
+    with open('dataset/hmdb_labels.txt', 'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        idx, label = line.strip().split(' ')
+        idxs.append(int(idx))
+        labels.append(label)
+
+    dct = dict(zip(labels, idxs))
+    return dct

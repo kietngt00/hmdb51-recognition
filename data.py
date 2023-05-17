@@ -1,3 +1,4 @@
+from uu import decode
 import torch
 import pytorch_lightning as pl
 import pytorchvideo.data
@@ -52,45 +53,50 @@ def get_val_transform():
               ),
             ]
         )
+
 class HMDB51DataModule(pl.LightningDataModule):
-    # Dataset configuration
-    _DATA_PATH = '/root/project/dataset/annotations'
-    _CLIP_DURATION = 2  # Duration of sampled clip for each video
-    _BATCH_SIZE = 8
-    _NUM_WORKERS = 8  # Number of parallel processes fetching data
+    def __init__(self, args):
+        super().__init__()
+        self.data_path = args.data_path
+        self.batch_size = args.batch_size
+        self.num_workers = args.num_workers
+        self.clip_duration = args.clip_duration
+        self.video_path_prefix = args.video_path_prefix
 
     def setup(self, stage=None):
         train_transform = get_train_transform()
         self.train_dataset = pytorchvideo.data.Hmdb51(
-                data_path=self._DATA_PATH,
+                data_path=self.data_path,
                 split_id=1,
                 split_type='train',
-                clip_sampler=pytorchvideo.data.make_clip_sampler("random", self._CLIP_DURATION),
+                clip_sampler=pytorchvideo.data.RandomClipSampler(self.clip_duration),
                 transform=train_transform,
-                video_path_prefix='/root/project/dataset/hmdb51'
+                video_path_prefix=self.video_path_prefix,
+                decode_audio=False
             )
 
         val_transform = get_val_transform()
         self.val_dataset = pytorchvideo.data.Hmdb51(
-                data_path=self._DATA_PATH,
+                data_path=self.data_path,
                 split_id=1,
                 split_type='test',
-                clip_sampler=pytorchvideo.data.make_clip_sampler("uniform", self._CLIP_DURATION),
+                clip_sampler=pytorchvideo.data.UniformClipSampler(self.clip_duration),
                 transform=val_transform,
-                video_path_prefix='/root/project/dataset/hmdb51'
+                video_path_prefix=self.video_path_prefix,
+                decode_audio=False
             )
 
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
             self.train_dataset,
-            batch_size=self._BATCH_SIZE,
-            num_workers=self._NUM_WORKERS,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
         )
     
     def val_dataloader(self):
         return torch.utils.data.DataLoader(
             self.val_dataset,
-            batch_size=self._BATCH_SIZE,
-            num_workers=self._NUM_WORKERS,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
         )

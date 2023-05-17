@@ -24,22 +24,22 @@ def main(cfg):
     pl.seed_everything(cfg.General.seed)
 
     #---->load loggers
-    cfg.load_loggers = load_loggers(cfg)
+    logger = load_loggers(cfg)
 
     #---->load callbacks
-    cfg.callbacks = load_callbacks(cfg)
+    callbacks = load_callbacks(cfg)
 
     #---->Define Data 
-    dm = HMDB51DataModule()
+    dm = HMDB51DataModule(cfg.Data)
 
     #---->Define Model
-    model = ModelInterface()
+    model = ModelInterface(cfg.Model)
     
     #---->Instantiate Trainer
     trainer = Trainer(
         num_sanity_val_steps=0, 
-        logger=cfg.load_loggers,
-        callbacks=cfg.callbacks,
+        logger=logger,
+        callbacks=callbacks,
         max_epochs= 200,
         accelerator='gpu',
         deterministic=True,
