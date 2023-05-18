@@ -46,8 +46,8 @@ class PreNorm(nn.Module):
     def __init__(self, dim, fn, context_dim = None):
         super().__init__()
         self.fn = fn
-        self.norm = nn.LayerNorm(dim)
-        self.norm_context = nn.LayerNorm(context_dim) if exists(context_dim) else None
+        self.norm = nn.LayerNorm(dim, device='cuda')
+        self.norm_context = nn.LayerNorm(context_dim, device='cuda') if exists(context_dim) else None
 
     def forward(self, x, **kwargs):
         x = self.norm(x)
@@ -164,17 +164,13 @@ class CrossAttention(nn.Module):
             enc_pos = fourier_encode(pos, self.max_freq, self.num_freq_bands)
             enc_pos = rearrange(enc_pos, '... n d -> ... (n d)')
             enc_pos = repeat(enc_pos, '... -> b ...', b = b)
-            print(data.shape, enc_pos.shape)
 
             data = torch.cat((data, enc_pos), dim = -1)
-            print(data.shape)
 
         # concat to channels of data and flatten axis
         data = rearrange(data, 'b ... d -> b (...) d')
-        print(data.shape)
 
-        x = repeat(self.latents, 'n d -> b n d', b = b)
-
+        x = repeat(self.latents, 'n d -> b n d', b = b).cuda()
         # layers
         x = self.cross_attn(x, context = data, mask = mask) + x
         x = self.cross_ff(x) + x
@@ -196,7 +192,7 @@ class SelfAttention(nn.Module):
         get_latent_attn = lambda: PreNorm(latent_dim, Attention(latent_dim, heads = latent_heads, dim_head = latent_dim_head, dropout = attn_dropout))
         get_latent_ff = lambda: PreNorm(latent_dim, FeedForward(latent_dim, dropout = ff_dropout))
 
-        self.cls = None
+        self.cls = nn.Parameter(torch.randn(1, 1, latent_dim))
 
         self.blocks = nn.ModuleList([])
         for block_ind in range(depth):
@@ -211,9 +207,7 @@ class SelfAttention(nn.Module):
         )
 
     def forward(self, x):
-        if self.cls is None:
-            self.cls = nn.Parameter(torch.randn(x.shape[0], 1, x.shape[2]))
-        x = torch.cat((self.cls, x), dim=1)
+        x = torch.cat((self.cls.expand(x.shape[0], -1, -1), x), dim=1)
         for self_attn, self_ff in self.blocks:
                 x = self_attn(x) + x
                 x = self_ff(x) + x

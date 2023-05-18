@@ -17,14 +17,14 @@ from torchvision.transforms import (
     CenterCrop,
 )
 
-def get_train_transform():
+def get_train_transform(num_frames):
     return Compose(
             [
             ApplyTransformToKey(
               key="video",
               transform=Compose(
                   [
-                    UniformTemporalSubsample(8),
+                    UniformTemporalSubsample(num_frames),
                     Lambda(lambda x: x / 255.0),
                     Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
                     RandomShortSideScale(min_size=256, max_size=320),
@@ -36,14 +36,14 @@ def get_train_transform():
             ]
         )
 
-def get_val_transform():
+def get_val_transform(num_frames):
     return Compose(
             [
             ApplyTransformToKey(
               key="video",
               transform=Compose(
                   [
-                    UniformTemporalSubsample(8),
+                    UniformTemporalSubsample(num_frames),
                     Lambda(lambda x: x / 255.0),
                     Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
                     ShortSideScale(size=320),
@@ -62,9 +62,10 @@ class HMDB51DataModule(pl.LightningDataModule):
         self.num_workers = args.num_workers
         self.clip_duration = args.clip_duration
         self.video_path_prefix = args.video_path_prefix
+        self.num_frames = args.num_frames
 
     def setup(self, stage=None):
-        train_transform = get_train_transform()
+        train_transform = get_train_transform(self.num_frames)
         self.train_dataset = pytorchvideo.data.Hmdb51(
                 data_path=self.data_path,
                 split_id=1,
@@ -75,7 +76,7 @@ class HMDB51DataModule(pl.LightningDataModule):
                 decode_audio=False
             )
 
-        val_transform = get_val_transform()
+        val_transform = get_val_transform(self.num_frames)
         self.val_dataset = pytorchvideo.data.Hmdb51(
                 data_path=self.data_path,
                 split_id=1,
