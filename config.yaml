@@ -1,17 +1,20 @@
 General:
     seed: 0
     log_path: logs/
-    epochs: 200
+    epochs: 100
+    patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'
-    clip_duration: 2  # Duration of sampled clip for each video
+    clip_duration: 4  # Duration of sampled clip for each video
+    num_frames: 16  # Number of frames to sample from each clip
     batch_size: 8
     num_workers: 8
     video_path_prefix: '/root/project/dataset/hmdb51'
 Model:
+    num_classes: 51
     cross_attention:
-        num_freq_bands: 6
-        max_freq: 10.
+        num_freq_bands: 6 # Check paper
+        max_freq: 10. # Check paper
         input_axis: 3 # Video has 3 axis
         num_latents: 256
         latent_dim: 512
@@ -30,3 +33,4 @@ Model:
         ff_dropout: 0.
     lr: 0.0001
     weight_decay: 0.00001
+    epochs: 100

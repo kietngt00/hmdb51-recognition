@@ -40,11 +40,13 @@ def main(cfg):
         num_sanity_val_steps=0, 
         logger=logger,
         callbacks=callbacks,
-        max_epochs= 200,
+        max_epochs= cfg.General.epochs,
         accelerator='gpu',
         deterministic=True,
         check_val_every_n_epoch=1,
         log_every_n_steps=1,
+        # limit_train_batches=1,
+        # limit_val_batches=2,
     )
 
     #---->train or test

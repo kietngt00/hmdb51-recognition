@@ -41,7 +41,7 @@ def load_callbacks(cfg):
     callbacks.append(early_stop_callback)
 
     callbacks.append(ModelCheckpoint(monitor = 'val_acc',
-                                        dirpath = str(cfg.log_path),
+                                        dirpath = str(cfg.General.log_path),
                                         filename = '{epoch:02d}-{val_acc:.4f}',
                                         verbose = True,
                                         save_last = True,
@@ -57,7 +57,7 @@ def get_label_dict():
 
     for line in lines:
         idx, label = line.strip().split(' ')
-        idxs.append(int(idx))
+        idxs.append(int(idx)-1)
         labels.append(label)
 
     dct = dict(zip(labels, idxs))
