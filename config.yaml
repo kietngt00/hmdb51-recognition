@@ -1,6 +1,6 @@
 General:
     seed: 0
-    log_path: logs/
+    log_path: logs/R(2+1)D_Cross_Self_Attention
     epochs: 100
     patience: 5
 Data:

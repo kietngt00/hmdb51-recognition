@@ -1,8 +1,5 @@
 import torch.nn as nn
 
-from ..utils import load_state_dict_from_url
-
-
 __all__ = ['r3d_18', 'mc3_18', 'r2plus1d_18']
 
 model_urls = {
@@ -11,6 +8,10 @@ model_urls = {
     'r2plus1d_18': 'https://download.pytorch.org/models/r2plus1d_18-91a641e6.pth',
 }
 
+try:
+    from torch.hub import load_state_dict_from_url
+except ImportError:
+    from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 class Conv3DSimple(nn.Conv3d):
     def __init__(self,
@@ -278,7 +279,7 @@ def _video_resnet(arch, pretrained=False, progress=True, **kwargs):
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls[arch],
                                               progress=progress)
-        model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 
