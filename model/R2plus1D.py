@@ -1,7 +1,7 @@
 import torch.nn as nn
-from einops import rearrange, repeat
-from model.temporal_shift import TemporalShift
-import torch
+
+from ..utils import load_state_dict_from_url
+
 
 __all__ = ['r3d_18', 'mc3_18', 'r2plus1d_18']
 
@@ -10,11 +10,6 @@ model_urls = {
     'mc3_18': 'https://download.pytorch.org/models/mc3_18-a90a0ba3.pth',
     'r2plus1d_18': 'https://download.pytorch.org/models/r2plus1d_18-91a641e6.pth',
 }
-
-try:
-    from torch.hub import load_state_dict_from_url
-except ImportError:
-    from torch.utils.model_zoo import load_url as load_state_dict_from_url
 
 
 class Conv3DSimple(nn.Conv3d):
@@ -60,12 +55,6 @@ class Conv2Plus1D(nn.Sequential):
     def get_downsample_stride(stride):
         return stride, stride, stride
 
-def make_block_temporal(stage, this_segment):
-    blocks = list(stage.children())
-    print('=> Processing stage with {} blocks'.format(len(blocks)))
-    for i, b in enumerate(blocks):
-        blocks[i] = TemporalShift(b, n_segment=this_segment, n_div=8)
-    return nn.Sequential(*(blocks))
 
 class Conv3DNoTemporal(nn.Conv3d):
 
@@ -111,8 +100,8 @@ class BasicBlock(nn.Module):
         self.stride = stride
 
     def forward(self, x):
-        x = self.shift(x, 4, 3)
         residual = x
+
         out = self.conv1(x)
         out = self.conv2(out)
         if self.downsample is not None:
@@ -122,27 +111,6 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
 
         return out
-
-    @staticmethod
-    def shift(x, n_segment, fold_div=3, inplace=False):
-        n, c, t, h, w = x.size()
-        # n_batch = nt // n_segment
-        # x = x.view(n_batch, n_segment, c, h, w)
-        x = rearrange(x, 'n c t h w -> n t c h w')
-
-        fold = c // fold_div
-        if inplace:
-            # Due to some out of order error when performing parallel computing. 
-            # May need to write a CUDA kernel.
-            raise NotImplementedError  
-            # out = InplaceShift.apply(x, fold)
-        else:
-            out = torch.zeros_like(x)
-            out[:, :-1, :fold] = x[:, 1:, :fold]  # shift left
-            out[:, 1:, fold: 2 * fold] = x[:, :-1, fold: 2 * fold]  # shift right
-            out[:, :, 2 * fold:] = x[:, :, 2 * fold:]  # not shift
-
-        return rearrange(out, 'n t c h w -> n c t h w')
 
 
 class Bottleneck(nn.Module):
@@ -244,20 +212,16 @@ class VideoResNet(nn.Module):
         self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=2)
 
-        # self.layer1 = make_block_temporal(self.layer1, 4)
-        # self.layer2 = make_block_temporal(self.layer2, 4)
-        # self.layer3 = make_block_temporal(self.layer3, 4)
-        # self.layer4 = make_block_temporal(self.layer4, 4)
+        # self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
+        # self.fc = nn.Linear(512 * block.expansion, num_classes)
 
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        # # init weights
+        # self._initialize_weights()
 
-        # init weights
-        self._initialize_weights()
-
-        if zero_init_residual:
-            for m in self.modules():
-                if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
+        # if zero_init_residual:
+        #     for m in self.modules():
+        #         if isinstance(m, Bottleneck):
+        #             nn.init.constant_(m.bn3.weight, 0)
 
     def forward(self, x):
         x = self.stem(x)
@@ -266,6 +230,11 @@ class VideoResNet(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
+
+        # x = self.avgpool(x)
+        # # Flatten the layer to fc
+        # x = x.flatten(1)
+        # x = self.fc(x)
 
         return x
 
