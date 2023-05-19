@@ -14,8 +14,9 @@ class ModelInterface(pl.LightningModule):
         self.label_dict = get_label_dict()
 
         self.cnn = r2plus1d_18(pretrained=True).cuda()
-        self.cross_attention = None
-        self.self_attention = SelfAttention(**args.self_attention).cuda()
+        self.cnn.fc = nn.Linear(512, 51)
+        # self.cross_attention = None
+        # self.self_attention = SelfAttention(**args.self_attention).cuda()
 
         self.criterion = nn.CrossEntropyLoss()
         self.metrics = torchmetrics.MetricCollection([torchmetrics.Accuracy(task='multiclass', num_classes=self.args.num_classes,
@@ -24,12 +25,12 @@ class ModelInterface(pl.LightningModule):
     
     def forward(self, x):
         x = self.cnn(x)
-        x = rearrange(x, 'N C T H W -> N T H W C')
-        if self.cross_attention is None:
-            self.args.cross_attention.input_channels = x.shape[-1]
-            self.cross_attention = CrossAttention(**self.args.cross_attention).cuda()
-        x = self.cross_attention(x)
-        x = self.self_attention(x)
+        # x = rearrange(x, 'N C T H W -> N T H W C')
+        # if self.cross_attention is None:
+        #     self.args.cross_attention.input_channels = x.shape[-1]
+        #     self.cross_attention = CrossAttention(**self.args.cross_attention).cuda()
+        # x = self.cross_attention(x)
+        # x = self.self_attention(x)
         return x
 
     def training_step(self, batch, batch_idx):

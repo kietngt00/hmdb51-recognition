@@ -213,16 +213,16 @@ class VideoResNet(nn.Module):
         self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=2)
 
-        # self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
-        # self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
+        self.fc = nn.Linear(512 * block.expansion, num_classes)
 
-        # # init weights
-        # self._initialize_weights()
+        # init weights
+        self._initialize_weights()
 
-        # if zero_init_residual:
-        #     for m in self.modules():
-        #         if isinstance(m, Bottleneck):
-        #             nn.init.constant_(m.bn3.weight, 0)
+        if zero_init_residual:
+            for m in self.modules():
+                if isinstance(m, Bottleneck):
+                    nn.init.constant_(m.bn3.weight, 0)
 
     def forward(self, x):
         x = self.stem(x)
@@ -232,10 +232,10 @@ class VideoResNet(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
 
-        # x = self.avgpool(x)
-        # # Flatten the layer to fc
-        # x = x.flatten(1)
-        # x = self.fc(x)
+        x = self.avgpool(x)
+        # Flatten the layer to fc
+        x = x.flatten(1)
+        x = self.fc(x)
 
         return x
 
