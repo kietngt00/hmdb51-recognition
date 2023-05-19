@@ -39,9 +39,9 @@ def load_callbacks(cfg):
     #     mode='min'
     # )
     # callbacks.append(early_stop_callback)
-
+    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size))
     callbacks.append(ModelCheckpoint(monitor = 'val_acc',
-                                        dirpath = str(cfg.General.log_path),
+                                        dirpath = log_path,
                                         filename = '{epoch:02d}-{val_acc:.4f}',
                                         verbose = True,
                                         save_last = True,
