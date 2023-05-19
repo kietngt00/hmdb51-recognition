@@ -31,14 +31,14 @@ def load_callbacks(cfg):
 
     callbacks = []
 
-    early_stop_callback = EarlyStopping(
-        monitor='val_loss',
-        min_delta=0.00,
-        patience=cfg.General.patience,
-        verbose=True,
-        mode='min'
-    )
-    callbacks.append(early_stop_callback)
+    # early_stop_callback = EarlyStopping(
+    #     monitor='val_loss',
+    #     min_delta=0.00,
+    #     patience=cfg.General.patience,
+    #     verbose=True,
+    #     mode='min'
+    # )
+    # callbacks.append(early_stop_callback)
 
     callbacks.append(ModelCheckpoint(monitor = 'val_acc',
                                         dirpath = str(cfg.General.log_path),

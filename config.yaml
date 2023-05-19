@@ -31,6 +31,6 @@ Model:
         num_classes: 51
         attn_dropout: 0.
         ff_dropout: 0.
-    lr: 0.0001
+    lr: 0.00005
     weight_decay: 0.00001
     epochs: 100
