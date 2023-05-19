@@ -60,6 +60,6 @@ class ModelInterface(pl.LightningModule):
         self.validation_step_outputs.clear()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.args.lr, betas=(0.5, 0.9), weight_decay=self.args.weight_decay)
+        optimizer = torch.optim.SGD(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay, momentum=0.9)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, self.args.epochs , 0.000005)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}
