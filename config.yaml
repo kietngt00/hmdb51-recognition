@@ -1,7 +1,7 @@
 General:
     seed: 0
-    log_path: logs/R(2+1)D_1 ### TODO: change this each time training to avoid overwriting logs
-    epochs: 100
+    log_path: logs/test ### TODO: change this each time training to avoid overwriting logs
+    epochs: 1
     patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'

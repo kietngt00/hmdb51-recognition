@@ -115,7 +115,7 @@ class HMDB51DataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
         )
 
-    def val_dataloader(self):
+    def test_dataloader(self):
         return torch.utils.data.DataLoader(
             self.test_dataset,
             batch_size=self.batch_size,

@@ -23,6 +23,7 @@ class ModelInterface(pl.LightningModule):
         self.metrics = torchmetrics.MetricCollection([torchmetrics.Accuracy(task='multiclass', num_classes=self.args.num_classes,
                                                                            average='micro')])
         self.validation_step_outputs = {}
+        self.test_step_outputs = {}
     
     def forward(self, x):
         x = self.cnn(x)
@@ -60,6 +61,24 @@ class ModelInterface(pl.LightningModule):
 
         return loss
 
+    def test_step(self, batch, batch_idx):
+        video, target, video_index = batch['video'], batch['label'], batch['video_index']
+        target = torch.tensor([self.label_dict[x] for x in target], device=video.device)
+        logit = self(video)
+        loss = self.criterion(logit, target)
+        self.log('test_loss', loss, on_step=True, on_epoch=True, prog_bar=False, logger=True, batch_size=video.shape[0])
+
+
+        # val_step_outputs: {vid_idx: {'logits': [...], 'target': target}}
+        for i, vid_idx in enumerate(video_index):
+            vid_idx = vid_idx.item()
+            if vid_idx not in self.test_step_outputs:
+                self.test_step_outputs[vid_idx] = {'logits': [], 'target': None}
+            self.test_step_outputs[vid_idx]['logits'].append(logit[i].cpu())
+            self.test_step_outputs[vid_idx]['target'] = target[i].item()
+
+        return loss
+
     def on_validation_epoch_end(self):
         # Video prediction is the majority vote of its clip predictions - 1 video is sampled in multiple clips
         val_preds, val_targets = [], []
@@ -78,6 +97,18 @@ class ModelInterface(pl.LightningModule):
         # val_targets = torch.cat([x['target'] for x in self.validation_step_outputs], dim = 0)
 
         # val_preds = torch.argmax(val_logits, dim = 1)
+    
+    def on_test_epoch_end(self):
+        test_preds, test_targets = [], []
+        for _, output in self.test_step_outputs.items():
+            clip_preds = torch.argmax(torch.stack(output['logits']), dim = 1)  # Get prediction for each clip of a video
+            test_preds.append(torch.mode(clip_preds, dim = 0).values.item())   # Majority vote for video prediction
+            test_targets.append(output['target'])                              # Get target for video
+        test_preds, test_targets = torch.tensor(test_preds), torch.tensor(test_targets)
+
+        self.log('test_acc', self.metrics(test_preds, test_targets)['MulticlassAccuracy'], 
+                 on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.test_step_outputs.clear()
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay, momentum=0.9)

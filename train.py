@@ -54,7 +54,8 @@ def main(cfg):
     #---->train or test
     if cfg.stage == 'train': 
         trainer.fit(model=model, datamodule=dm)
-    else: 
+        trainer.test(datamodule=dm)
+    elif cfg.stage == 'test': 
         model = ModelInterface.load_from_checkpoint(cfg.ckp_path)
         model.eval()
         trainer.test(model=model, datamodule=dm)
