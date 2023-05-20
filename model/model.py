@@ -50,7 +50,6 @@ class ModelInterface(pl.LightningModule):
         loss = self.criterion(logit, target)
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=False, logger=True, batch_size=video.shape[0])
 
-
         # val_step_outputs: {vid_idx: {'logits': [...], 'target': target}}
         for i, vid_idx in enumerate(video_index):
             vid_idx = vid_idx.item()
@@ -68,8 +67,7 @@ class ModelInterface(pl.LightningModule):
         loss = self.criterion(logit, target)
         self.log('test_loss', loss, on_step=True, on_epoch=True, prog_bar=False, logger=True, batch_size=video.shape[0])
 
-
-        # val_step_outputs: {vid_idx: {'logits': [...], 'target': target}}
+        # test_step_outputs: {vid_idx: {'logits': [...], 'target': target}}
         for i, vid_idx in enumerate(video_index):
             vid_idx = vid_idx.item()
             if vid_idx not in self.test_step_outputs:
