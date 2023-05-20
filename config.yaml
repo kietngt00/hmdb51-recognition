@@ -1,11 +1,11 @@
 General:
     seed: 0
-    log_path: logs/R(2+1)D
+    log_path: logs/R(2+1)D_1 ### TODO: change this each time training to avoid overwriting logs
     epochs: 100
     patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'
-    clip_duration: 4  # Duration of sampled clip for each video
+    clip_duration: 2  # Duration of sampled clip for each video
     num_frames: 16  # Number of frames to sample from each clip
     batch_size: 8
     num_workers: 8
@@ -31,6 +31,6 @@ Model:
         num_classes: 51
         attn_dropout: 0.
         ff_dropout: 0.
-    lr: 0.00005
+    lr: 0.001
     weight_decay: 0.00001
     epochs: 100

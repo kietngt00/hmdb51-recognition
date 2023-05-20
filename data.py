@@ -15,6 +15,7 @@ from torchvision.transforms import (
     RandomCrop,
     RandomHorizontalFlip,
     CenterCrop,
+    Resize,
 )
 
 def get_train_transform(num_frames):
@@ -27,8 +28,9 @@ def get_train_transform(num_frames):
                     UniformTemporalSubsample(num_frames),
                     Lambda(lambda x: x / 255.0),
                     Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
-                    RandomShortSideScale(min_size=256, max_size=320),
-                    RandomCrop(224),
+                    # RandomShortSideScale(min_size=128, max_size=160),
+                    Resize((128, 171), antialias=False),
+                    RandomCrop(112),
                     RandomHorizontalFlip(p=0.5),
                   ]
                 ),
@@ -46,8 +48,9 @@ def get_val_transform(num_frames):
                     UniformTemporalSubsample(num_frames),
                     Lambda(lambda x: x / 255.0),
                     Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
-                    ShortSideScale(size=320),
-                    CenterCrop(224),
+                    # ShortSideScale(size=128),
+                    Resize((128, 171),antialias=False),
+                    CenterCrop(112),
                   ]
                 ),
               ),
@@ -86,6 +89,16 @@ class HMDB51DataModule(pl.LightningDataModule):
                 video_path_prefix=self.video_path_prefix,
                 decode_audio=False
             )
+        
+        self.test_dataset = pytorchvideo.data.Hmdb51(
+                data_path=self.data_path,
+                split_id=1,
+                split_type='unused',
+                clip_sampler=pytorchvideo.data.UniformClipSampler(self.clip_duration),
+                transform=val_transform,
+                video_path_prefix=self.video_path_prefix,
+                decode_audio=False
+            )
 
 
     def train_dataloader(self):
@@ -98,6 +111,13 @@ class HMDB51DataModule(pl.LightningDataModule):
     def val_dataloader(self):
         return torch.utils.data.DataLoader(
             self.val_dataset,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+        )
+
+    def val_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
         )
