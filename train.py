@@ -14,6 +14,8 @@ from utils import *
 def make_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='config.yaml',type=str)
+    parser.add_argument('--stage', default='train',type=str)
+    parser.add_argument('--ckp_path', default=None,type=str)
     args = parser.parse_args()
     return args
 
@@ -50,11 +52,19 @@ def main(cfg):
     )
 
     #---->train or test
-    trainer.fit(model=model, datamodule=dm)
+    if cfg.stage == 'train': 
+        trainer.fit(model=model, datamodule=dm)
+        trainer.test(datamodule=dm)
+    elif cfg.stage == 'test': 
+        model = ModelInterface.load_from_checkpoint(cfg.ckp_path)
+        model.eval()
+        trainer.test(model=model, datamodule=dm)
 
 if __name__ == '__main__':
     args = make_parse()
     cfg = read_yaml(args.config)
+    cfg.stage = args.stage
+    cfg.ckp_path = args.ckp_path
 
     main(cfg)
  
