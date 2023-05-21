@@ -1,14 +1,14 @@
 General:
     seed: 0
-    log_path: logs/test ### TODO: change this each time training to avoid overwriting logs
+    log_path: logs/3layers_Cross_Self ### TODO: change this each time training to avoid overwriting logs
     epochs: 1
     patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'
-    clip_duration: 2  # Duration of sampled clip for each video
-    num_frames: 16  # Number of frames to sample from each clip
-    batch_size: 8
-    num_workers: 8
+    clip_duration: 4  # Duration of sampled clip for each video
+    num_frames: 32  # Number of frames to sample from each clip
+    batch_size: 16
+    num_workers: 16
     video_path_prefix: '/root/project/dataset/hmdb51'
 Model:
     num_classes: 51
@@ -31,6 +31,5 @@ Model:
         num_classes: 51
         attn_dropout: 0.
         ff_dropout: 0.
-    lr: 0.001
-    weight_decay: 0.00001
-    epochs: 100
+    lr: 0.0001
+    weight_decay: 0.001

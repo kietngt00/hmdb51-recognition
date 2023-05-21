@@ -47,7 +47,7 @@ def get_val_transform(num_frames):
                   [
                     UniformTemporalSubsample(num_frames),
                     Lambda(lambda x: x / 255.0),
-                    Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)),
+                    Normalize((0.43216, 0.394666, 0.37645), (0.22803, 0.22145, 0.216989)),
                     # ShortSideScale(size=128),
                     Resize((128, 171),antialias=False),
                     CenterCrop(112),
