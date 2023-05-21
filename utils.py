@@ -14,7 +14,7 @@ from pytorch_lightning import loggers as pl_loggers
 
 def load_loggers(cfg):
 
-    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size)) # example: logs/0.001_32
+    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size) + '_' + str(cfg.Data.num_frames)) # example: logs/0.001_32
     Path(log_path).mkdir(exist_ok=True, parents=True)
     
     #---->TensorBoard
@@ -39,7 +39,7 @@ def load_callbacks(cfg):
     #     mode='min'
     # )
     # callbacks.append(early_stop_callback)
-    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size))
+    log_path = os.path.join(cfg.General.log_path, str(cfg.Model.lr) + '_' + str(cfg.Data.batch_size) + '_' + str(cfg.Data.num_frames))
     callbacks.append(ModelCheckpoint(monitor = 'val_acc',
                                         dirpath = log_path,
                                         filename = '{epoch:02d}-{val_acc:.4f}',

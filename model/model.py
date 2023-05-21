@@ -108,6 +108,6 @@ class ModelInterface(pl.LightningModule):
         self.test_step_outputs.clear()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay, momentum=0.9)
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.2)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}
