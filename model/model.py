@@ -3,6 +3,7 @@ import torch.nn as nn
 import torchmetrics
 import pytorch_lightning as pl
 from model.attention import CrossAttention, SelfAttention
+from model.perceiver import Perceiver
 from einops import rearrange
 from utils import get_label_dict
 from model.R2plus1D import r2plus1d_18
@@ -14,10 +15,12 @@ class ModelInterface(pl.LightningModule):
         self.args = args
         self.label_dict = get_label_dict()
 
-        self.cnn = r2plus1d_18(pretrained=True).cuda()
-
-        self.cross_attention = None
-        self.self_attention = SelfAttention(**args.self_attention).cuda()
+        self.cnn = r2plus1d_18(pretrained=True)
+        for param in self.cnn.parameters():
+            param.requires_grad = False
+        # self.cross_attention = None
+        # self.self_attention = SelfAttention(**args.self_attention).cuda()
+        self.perceiver = None
 
         self.criterion = nn.CrossEntropyLoss()
         self.metrics = torchmetrics.MetricCollection([torchmetrics.Accuracy(task='multiclass', num_classes=self.args.num_classes,
@@ -28,11 +31,15 @@ class ModelInterface(pl.LightningModule):
     def forward(self, x):
         x = self.cnn(x)
         x = rearrange(x, 'N C T H W -> N T H W C')
-        if self.cross_attention is None:
-            self.args.cross_attention.input_channels = x.shape[-1]
-            self.cross_attention = CrossAttention(**self.args.cross_attention).cuda()
-        x = self.cross_attention(x)
-        x = self.self_attention(x)
+        if self.perceiver is None:
+            self.args.perceiver.input_channels = x.shape[-1]
+            self.perceiver = Perceiver(**self.args.perceiver).cuda()
+        x = self.perceiver(x)
+        # if self.cross_attention is None:
+        #     self.args.cross_attention.input_channels = x.shape[-1]
+        #     self.cross_attention = CrossAttention(**self.args.cross_attention).cuda()
+        # x = self.cross_attention(x)
+        # x = self.self_attention(x)
         return x
 
     def training_step(self, batch, batch_idx):
@@ -109,6 +116,6 @@ class ModelInterface(pl.LightningModule):
         self.test_step_outputs.clear()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}

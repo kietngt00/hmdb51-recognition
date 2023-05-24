@@ -46,8 +46,8 @@ class PreNorm(nn.Module):
     def __init__(self, dim, fn, context_dim = None):
         super().__init__()
         self.fn = fn
-        self.norm = nn.LayerNorm(dim, device='cuda')
-        self.norm_context = nn.LayerNorm(context_dim, device='cuda') if exists(context_dim) else None
+        self.norm = nn.LayerNorm(dim)
+        self.norm_context = nn.LayerNorm(context_dim) if exists(context_dim) else None
 
     def forward(self, x, **kwargs):
         x = self.norm(x)
@@ -170,7 +170,7 @@ class CrossAttention(nn.Module):
         # concat to channels of data and flatten axis
         data = rearrange(data, 'b ... d -> b (...) d')
 
-        x = repeat(self.latents, 'n d -> b n d', b = b).cuda()
+        x = repeat(self.latents, 'n d -> b n d', b = b)
         # layers
         x = self.cross_attn(x, context = data, mask = mask) + x
         x = self.cross_ff(x) + x
