@@ -1,7 +1,7 @@
 General:
     seed: 0
-    log_path: logs/3layers_Cross_Self ### TODO: change this each time training to avoid overwriting logs
-    epochs: 1
+    log_path: logs/2layers_1Cross_8Self ### TODO: change this each time training to avoid overwriting logs
+    epochs: 100
     patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'
@@ -18,18 +18,18 @@ Model:
         input_axis: 3 # Video has 3 axis
         num_latents: 256
         latent_dim: 512
-        cross_heads: 1
-        cross_dim_head: 64
-        attn_dropout: 0
-        ff_dropout: 0
+        cross_heads: 4
+        cross_dim_head: 128 
+        attn_dropout: 0.5
+        ff_dropout: 0.5
         fourier_encode_data: True
     self_attention:
-        depth: 6
+        depth: 8
         latent_dim: 512
         latent_heads: 8
         latent_dim_head: 64
         num_classes: 51
-        attn_dropout: 0.
-        ff_dropout: 0.
+        attn_dropout: 0.5
+        ff_dropout: 0.5
     lr: 0.0001
     weight_decay: 0.001

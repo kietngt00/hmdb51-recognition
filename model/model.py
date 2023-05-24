@@ -15,6 +15,7 @@ class ModelInterface(pl.LightningModule):
         self.label_dict = get_label_dict()
 
         self.cnn = r2plus1d_18(pretrained=True).cuda()
+
         self.cross_attention = None
         self.self_attention = SelfAttention(**args.self_attention).cuda()
 
@@ -109,5 +110,5 @@ class ModelInterface(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.args.lr, weight_decay=self.args.weight_decay)
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.2)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler}

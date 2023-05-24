@@ -210,7 +210,7 @@ class VideoResNet(nn.Module):
 
         self.layer1 = self._make_layer(block, conv_makers[0], 64, layers[0], stride=1)
         self.layer2 = self._make_layer(block, conv_makers[1], 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2)
+        # self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2)
         # self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=2)
 
         # self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
@@ -229,7 +229,7 @@ class VideoResNet(nn.Module):
 
         x = self.layer1(x)
         x = self.layer2(x)
-        x = self.layer3(x)
+        # x = self.layer3(x)
         # x = self.layer4(x)
 
         # x = self.avgpool(x)
