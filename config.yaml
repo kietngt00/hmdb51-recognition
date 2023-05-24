@@ -1,51 +1,33 @@
 General:
     seed: 0
-    log_path: logs/2layers_Perceiver_3 ### TODO: change this each time training to avoid overwriting logs
+    log_path: logs/Perceiver ### TODO: change this each time training to avoid overwriting logs
     epochs: 100
     patience: 5
 Data:
     data_path: '/root/project/dataset/annotations'
     clip_duration: 2  # Duration of sampled clip for each video
-    num_frames: 16  # Number of frames to sample from each clip
-    batch_size: 16
-    num_workers: 16
+    num_frames: 32  # Number of frames to sample from each clip
+    batch_size: 8
+    num_workers: 8
     video_path_prefix: '/root/project/dataset/hmdb51'
 Model:
     num_classes: 51
-    cross_attention:
-        num_freq_bands: 6 # Check paper
-        max_freq: 10. # Check paper
-        input_axis: 3 # Video has 3 axis
-        num_latents: 256
-        latent_dim: 512
-        cross_heads: 1
-        cross_dim_head: 64 
-        attn_dropout: 0
-        ff_dropout: 0
-        fourier_encode_data: True
-    self_attention:
-        depth: 8
-        latent_dim: 512
-        latent_heads: 8
-        latent_dim_head: 64
-        num_classes: 51
-        attn_dropout: 0
-        ff_dropout: 0
     perceiver:
         num_freq_bands: 6
-        depth: 1 # Ablate
+        depth: 2  # number of (Cross, Self) blocks
         max_freq: 10.
         input_axis: 3
-        num_latents: 512
-        latent_dim: 1024
+        input_channels: 3
+        num_latents: 256 # number of queries for cross attention
+        latent_dim: 512
         cross_heads: 1
         latent_heads: 8
-        cross_dim_head: 512 # Ablate
+        cross_dim_head: 64 
         latent_dim_head: 64
         num_classes: 51
         attn_dropout: 0.
         ff_dropout: 0.
-        self_per_cross_attn: 8 # Ablate
+        self_per_cross_attn: 8
         final_classifier_head: True
     lr: 0.0001
     weight_decay: 0.00001

@@ -15,12 +15,13 @@ class ModelInterface(pl.LightningModule):
         self.args = args
         self.label_dict = get_label_dict()
 
-        self.cnn = r2plus1d_18(pretrained=True)
-        for param in self.cnn.parameters():
-            param.requires_grad = False
+        # self.cnn = r2plus1d_18(pretrained=True)
+        # for param in self.cnn.parameters():
+        #     param.requires_grad = False
         # self.cross_attention = None
         # self.self_attention = SelfAttention(**args.self_attention).cuda()
-        self.perceiver = None
+        self.patch_embed = nn.Conv3d(in_channels=3, out_channels=3, kernel_size=(2, 8, 8), stride=(2, 8, 8))
+        self.perceiver = Perceiver(**self.args.perceiver)
 
         self.criterion = nn.CrossEntropyLoss()
         self.metrics = torchmetrics.MetricCollection([torchmetrics.Accuracy(task='multiclass', num_classes=self.args.num_classes,
@@ -29,11 +30,13 @@ class ModelInterface(pl.LightningModule):
         self.test_step_outputs = {}
     
     def forward(self, x):
-        x = self.cnn(x)
+        # x = self.cnn(x)
+        # x = rearrange(x, 'N C T H W -> N T H W C')
+        # if self.perceiver is None:
+        #     self.args.perceiver.input_channels = x.shape[-1]
+        #     self.perceiver = Perceiver(**self.args.perceiver).cuda()
+        x = self.patch_embed(x)
         x = rearrange(x, 'N C T H W -> N T H W C')
-        if self.perceiver is None:
-            self.args.perceiver.input_channels = x.shape[-1]
-            self.perceiver = Perceiver(**self.args.perceiver).cuda()
         x = self.perceiver(x)
         # if self.cross_attention is None:
         #     self.args.cross_attention.input_channels = x.shape[-1]
