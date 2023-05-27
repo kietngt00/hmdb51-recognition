@@ -211,7 +211,7 @@ class VideoResNet(nn.Module):
         self.layer1 = self._make_layer(block, conv_makers[0], 64, layers[0], stride=1)
         self.layer2 = self._make_layer(block, conv_makers[1], 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, conv_makers[2], 256, layers[2], stride=2)
-        # self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=2)
+        self.layer4 = self._make_layer(block, conv_makers[3], 512, layers[3], stride=2)
 
         # self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
         # self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -230,7 +230,7 @@ class VideoResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        # x = self.layer4(x)
+        x = self.layer4(x)
 
         # x = self.avgpool(x)
         # # Flatten the layer to fc
@@ -241,7 +241,7 @@ class VideoResNet(nn.Module):
 
     def _make_layer(self, block, conv_builder, planes, blocks, stride=1):
         downsample = None
-
+        
         if stride != 1 or self.inplanes != planes * block.expansion:
             ds_stride = conv_builder.get_downsample_stride(stride)
             downsample = nn.Sequential(
@@ -337,5 +337,5 @@ def r2plus1d_18(pretrained=False, progress=True, **kwargs):
                          pretrained, progress,
                          block=BasicBlock,
                          conv_makers=[Conv2Plus1D] * 4,
-                         layers=[2, 2, 2, 2],
+                         layers=[2, 2, 2, 1],
                          stem=R2Plus1dStem, **kwargs)

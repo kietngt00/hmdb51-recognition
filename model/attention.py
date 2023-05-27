@@ -192,7 +192,7 @@ class SelfAttention(nn.Module):
         get_latent_attn = lambda: PreNorm(latent_dim, Attention(latent_dim, heads = latent_heads, dim_head = latent_dim_head, dropout = attn_dropout))
         get_latent_ff = lambda: PreNorm(latent_dim, FeedForward(latent_dim, dropout = ff_dropout))
 
-        self.cls = nn.Parameter(torch.randn(1, 1, latent_dim))
+        # self.cls = nn.Parameter(torch.randn(1, 1, latent_dim))
 
         self.blocks = nn.ModuleList([])
         for block_ind in range(depth):
