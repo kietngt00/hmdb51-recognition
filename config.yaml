@@ -1,6 +1,6 @@
 General:
     seed: 0
-    log_path: logs/R(2+1)D_1Cross_1Self_2 ### TODO: change this each time training to avoid overwriting logs
+    log_path: logs/3layers_1Cross_3Self_2 ### TODO: change this each time training to avoid overwriting logs
     epochs: 100
     patience: 5
 Data:
@@ -16,20 +16,20 @@ Model:
         num_freq_bands: 32 # Check paper
         max_freq: 56. # Check paper
         input_axis: 3 # Video has 3 axis
-        num_latents: 32
-        latent_dim: 64
+        num_latents: 64
+        latent_dim: 128
         cross_heads: 1
-        cross_dim_head: 64
-        attn_dropout: 0.1
-        ff_dropout: 0.1
+        cross_dim_head: 256
+        attn_dropout: 0.5
+        ff_dropout: 0.5
         fourier_encode_data: True
     self_attention:
-        depth: 1
-        latent_dim: 64
-        latent_heads: 1
+        depth: 3
+        latent_dim: 128
+        latent_heads: 2
         latent_dim_head: 64
         num_classes: 51
-        attn_dropout: 0.1
-        ff_dropout: 0.1
+        attn_dropout: 0.5
+        ff_dropout: 0.5
     lr: 0.0001
-    weight_decay: 0.00001
+    weight_decay: 0.001
