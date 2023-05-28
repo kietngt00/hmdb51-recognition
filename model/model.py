@@ -16,8 +16,6 @@ class ModelInterface(pl.LightningModule):
         self.label_dict = get_label_dict()
 
         self.cnn = r2plus1d_18(pretrained=True)
-        for param in self.cnn.parameters():
-            param.requires_grad = False
         # self.cross_attention = None
         # self.self_attention = SelfAttention(**args.self_attention).cuda()
         self.perceiver = None
