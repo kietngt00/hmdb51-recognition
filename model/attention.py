@@ -210,6 +210,7 @@ class SelfAttention(nn.Module):
             ]))
         
         self.to_logits = nn.Sequential(
+            Reduce('b n d -> b d', 'mean'),
             nn.LayerNorm(latent_dim),
             nn.Linear(latent_dim, num_classes)
         )
@@ -220,7 +221,7 @@ class SelfAttention(nn.Module):
                 x = self_attn(x) + x
                 x = self_ff(x) + x
         
-        return self.to_logits(x[:, 0])
+        return self.to_logits(x)
 
 
 # class Perceiver(nn.Module):

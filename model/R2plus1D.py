@@ -337,5 +337,5 @@ def r2plus1d_18(pretrained=False, progress=True, **kwargs):
                          pretrained, progress,
                          block=BasicBlock,
                          conv_makers=[Conv2Plus1D] * 4,
-                         layers=[2, 2, 2, 2],
+                         layers=[2, 2, 2, 1],
                          stem=R2Plus1dStem, **kwargs)
