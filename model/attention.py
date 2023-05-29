@@ -6,6 +6,7 @@ from torch import nn, einsum
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
+from einops.layers.torch import Reduce
 
 # helpers
 
@@ -124,6 +125,7 @@ class CrossAttention(nn.Module):
         self,
         num_freq_bands,
         max_freq,
+        num_classes=1000,
         input_channels = 3,
         input_axis = 2,
         num_latents = 512,
@@ -147,6 +149,12 @@ class CrossAttention(nn.Module):
 
         self.cross_attn = PreNorm(latent_dim, Attention(latent_dim, input_dim, heads = cross_heads, dim_head = cross_dim_head, dropout = attn_dropout), context_dim = input_dim)
         self.cross_ff = PreNorm(latent_dim, FeedForward(latent_dim, dropout = ff_dropout))
+
+        self.to_logits = nn.Sequential(
+            Reduce('b n d -> b d', 'mean'),
+            nn.LayerNorm(latent_dim),
+            nn.Linear(latent_dim, num_classes)
+        )
 
     def forward(
         self,
@@ -175,7 +183,7 @@ class CrossAttention(nn.Module):
         x = self.cross_attn(x, context = data, mask = mask) + x
         x = self.cross_ff(x) + x
 
-        return x
+        return self.to_logits(x)
 
 class SelfAttention(nn.Module):
     def __init__(
