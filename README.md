@@ -8,6 +8,7 @@ The architecture based mostly on two prior arts [R(2+1)D CNN](https://arxiv.org/
 
 ## Method
 ![](./architecture.png)
+
 The image above illustrates my proposed architecture. It contains of two main modules: CNN module and Attention module.
 
 **CNN Module**: 
