@@ -16,9 +16,9 @@ The image above illustrates my proposed architecture. It contains of two main mo
    - The number of layers are ablated in my experiments.
 
 **Attention module**
-- Cross attention: use **N** trainable queries to performance attention operation on the tokens from the CNN module. Complexity: $$O(MN)$$  
-- Self attention: model the interaction of tokens from cross-attention layers. Complexity: $$O(N^2)$$
-- There are L layers of self-attention per cross-attention. The total complexity for 1 group of cross and self attention is: $$O(NM + LN^2)$$
+- Cross attention: use **N** trainable queries to performance attention operation on the tokens from the CNN module. Complexity: $O(MN)$
+- Self attention: model the interaction of tokens from cross-attention layers. Complexity: $O(N^2)$
+- There are L layers of self-attention per cross-attention. The total complexity for 1 group of cross and self attention is: $O(NM + LN^2)$
  
 ## Compared Methods
 - R(2+1)D conv: computationally efficient network with good results
@@ -33,6 +33,7 @@ The image above illustrates my proposed architecture. It contains of two main mo
 | 8 CNN blocks + 1 Cross Attention + 2 Self Attention |   0.02675  |   1.484  |  0.6745 |    31.3M   |       11.8M      |
 | 8 CNN blocks + 1 Cross Attention + 1 Self Attention |   0.1199   |   1.271  |  0.7034 |    31.3M   |       7.6M       |
 | Baseline - R(2+1)D                                  |   0.5385   |   1.118  |  **0.7270** |    31.5M   |         0        |
+
 In my initial experiments, I explore the impact of attention module size on the model's performance. From the results shown in the table, it can be observed that increasing the size of the attention module leads to higher levels of overfitting. While the training losses of the first two models approach zero, the validation losses are significantly higher compared to the baseline. As a result, the validation accuracy of the larger model is notably lower. However, when I replace the classification head of the CNN module with 1 cross attention and 1 self-attention, I obtain results that closely resemble the baseline performance.
 
 **Ablation Study on CNN module**
